@@ -13,10 +13,48 @@ class Board extends React.Component {
       [2, 0, 2, 0, 2, 0, 2, 0],
       [0, 2, 0, 2, 0, 2, 0, 2],
       [2, 0, 2, 0, 2, 0, 2, 0]
-    ]
-    // piecePosition: {pieceX: 0, pieceY: 0},
-    // spacePosition: {xSpace: 0, ySpace: 0}
+    ],
+    boardCoordinates: {
+      x: 0,
+      y: 0
+    }
   };
+
+  changePiece(board) {
+    return function() {
+      board.state.boardCoordinates = {
+        x: this.boardCoordinateX,
+        y: this.boardCoordinateY
+      };
+    };
+  }
+
+  changeSpace(board) {
+    return function() {
+      if (!board.state.boardCoordinates) {
+        return false;
+      }
+
+      let startingCoordinates = board.state.boardCoordinates;
+      let endingCoordinates = {
+        x: this.boardCoordinateX,
+        y: this.boardCoordinateY
+      };
+
+      board.movePiece(startingCoordinates, endingCoordinates);
+
+      board.state.boardCoordinates = null;
+    };
+  }
+
+  movePiece(start, end) {
+    const updatedBoard = this.state.board[start.y][start.x];
+
+    this.state.board[start.y][start.x] = 0;
+    this.state.board[end.y][end.x] = updatedBoard;
+
+    this.setState(this.state);
+  }
 
   render() {
     //400 / 8 = 50px of each space, and 8 spaces per row
@@ -32,12 +70,10 @@ class Board extends React.Component {
         viewBox={`0 0 ${this.props.size} ${this.props.size}`}
       >
         {this.state.board.map((row, y) => {
-          //Checks to see if the row is even.
           const isEvenRow = y % 2;
           const spaceY = spaceSize * y;
 
           return row.map((space, x) => {
-            //Checking to see if the space is even numbered
             const isEvenSpace = x % 2;
             const spaceX = spaceSize * x;
 
@@ -45,11 +81,14 @@ class Board extends React.Component {
               <Space
                 key={x}
                 shade={
-                  (isEvenSpace && !isEvenRow) || (!isEvenSpace && isEvenRow)
+                  (isEvenSpace && !isEvenRow) || (isEvenRow && !isEvenSpace)
                 }
                 size={spaceSize}
                 x={spaceX}
                 y={spaceY}
+                boardCoordinateX={x}
+                boardCoordinateY={y}
+                handleSpaceClick={this.changeSpace(this)}
               />
             );
           });
@@ -61,7 +100,6 @@ class Board extends React.Component {
             const spaceX = spaceSize * x;
 
             if (space === 0) {
-              // The space is empty.
               return null;
             }
 
@@ -72,6 +110,9 @@ class Board extends React.Component {
                 centerY={spaceY + pieceRadius}
                 player={space}
                 radius={pieceRadius * 0.75}
+                boardCoordinateX={x}
+                boardCoordinateY={y}
+                handlePieceClick={this.changePiece(this)}
               />
             );
           });

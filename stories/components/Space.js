@@ -1,28 +1,10 @@
 import React from "react";
 
 class Space extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      x: 0,
-      y: 0
-    };
-  }
-
-  handleSpaceClick = event => {
-    // console.log(event.target.x.animVal.value)
-    // console.log(event.target.y.animVal.value)
-    this.setState({
-      x: event.target.x.animVal.value,
-      y: event.target.y.animVal.value
-    });
-  };
-
   render() {
-    console.log(this.state);
     return (
       <rect
-        onClick={this.handleSpaceClick}
+        onClick={props => this.props.handleSpaceClick(props)}
         fill={this.props.shade ? "green" : "lightgray"}
         height={this.props.size}
         width={this.props.size}
